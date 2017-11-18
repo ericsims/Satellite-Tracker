@@ -1,5 +1,6 @@
 #include "mbed.h"
 #include "stepper.h"
+#include "math.h"
 
 extern Serial pc;
 
@@ -19,6 +20,13 @@ Stepper::Stepper(PinName pin1, PinName pin2, PinName pin3, PinName pin4, PinName
     home = new DigitalIn(homepin);
     degreesPerStep = 360/512;
     findHome();
+}
+
+void Stepper::stepperOff() {
+  *mystep1 = 0;
+  *mystep2 = 0;
+  *mystep3 = 0;
+  *mystep4 = 0;
 }
 
 void Stepper::stepCW(){
@@ -58,9 +66,21 @@ void Stepper::findHome(){
     currentPosition = 0.0;
 }
 
+//takes angle in degrees
 void Stepper::setAngle(double targetAngle) {
-    double difference = targetAngle - currentPosition;
-yo finish this;
+    targetPosition = math::floor(((targetAngle+360)%360) / degreesPerStep);
+}
+
+void Stepper::stepperLoop(){
+  if(currentPosition == targetPosition) {
+    stepperOff();
+  } else {
+    if(targetAngle > currentAngle) {
+      turnCCW();
+    } else { //if(targetAngle < currentAngle)
+      turnCW();
+    }
+  }
 }
 
 void Stepper::testStepper()
