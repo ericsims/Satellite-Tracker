@@ -42,6 +42,7 @@ void Stepper::stepCW(){
     *mystep3 = 0;
     *mystep4 = 1;
     wait(0.01);
+    currentPosition--;
 }
 
 void Stepper::stepCCW(){
@@ -57,13 +58,14 @@ void Stepper::stepCCW(){
     *mystep2 = 0;
     *mystep1 = 1;
     wait(0.01);
+    currentPosition++;
 }
 
 void Stepper::findHome(){
     while(!home) {
         stepCW();
     }
-    currentPosition = 0.0;
+    currentPosition = 0;
 }
 
 //takes angle in degrees

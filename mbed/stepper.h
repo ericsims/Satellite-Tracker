@@ -6,17 +6,17 @@ class Stepper
 {
   public:
     Stepper(PinName pin1, PinName pin2, PinName pin3, PinName pin4, PinName home);
-    void setAngle(double angle);
-    void stepperLoop();
     void stepperOff();
     void stepCW();
     void stepCCW();
     void findHome();
+    void setAngle(double);
+    void stepperLoop();
     void testStepper();
 
   private:
-    double currentPosition;
-    double targetPosition;
+    int currentPosition;
+    int targetPosition;
     double degreesPerStep;
     DigitalIn* home;
     DigitalOut* mystep1;
