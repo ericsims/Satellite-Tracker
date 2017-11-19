@@ -23,11 +23,11 @@ Stepper::Stepper(PinName pin1, PinName pin2, PinName pin3, PinName pin4, PinName
     findHome();
 }
 
-double getStepsPerDegree() {
+double Stepper::getStepsPerDegree() {
   return stepsPerDegree;
 }
 
-double getDegreesPerStep() {
+double Stepper::getDegreesPerStep() {
   return degreesPerStep;
 }
 
@@ -39,93 +39,125 @@ void Stepper::stepperOff() {
 }
 
 void Stepper::stepCW(){
-    *mystep4 = 0;
-    *mystep1 = 1;
-    wait(0.01);
-    *mystep1 = 0;
-    *mystep2 = 1;
-    wait(0.01);
-    *mystep2 = 0;
-    *mystep3 = 1;
-    wait(0.01);
-    *mystep3 = 0;
-    *mystep4 = 1;
-    wait(0.01);
-    currentPosition--;
+  *mystep1 = 0;
+  *mystep2 = 0;
+  *mystep3 = 1;
+  *mystep4 = 1;
+  wait(0.01);
+  *mystep1 = 0;
+  *mystep2 = 1;
+  *mystep3 = 1;
+  *mystep4 = 0;
+  wait(0.01);
+  *mystep1 = 1;
+  *mystep2 = 1;
+  *mystep3 = 0;
+  *mystep4 = 0;
+  wait(0.01);
+  *mystep1 = 1;
+  *mystep2 = 0;
+  *mystep3 = 0;
+  *mystep4 = 1;
+  wait(0.01);
+  currentPosition--;
 }
 
 void Stepper::stepCCW(){
-    *mystep1 = 0;
-    *mystep4 = 1;
-    wait(0.01);
-    *mystep4 = 0;
-    *mystep3 = 1;
-    wait(0.01);
-    *mystep3 = 0;
-    *mystep2 = 1;
-    wait(0.01);
-    *mystep2 = 0;
-    *mystep1 = 1;
-    wait(0.01);
-    currentPosition++;
+  *mystep1 = 1;
+  *mystep2 = 1;
+  *mystep3 = 0;
+  *mystep4 = 0;
+  wait(0.01);
+  *mystep1 = 0;
+  *mystep2 = 1;
+  *mystep3 = 1;
+  *mystep4 = 0;
+  wait(0.01);
+  *mystep1 = 0;
+  *mystep2 = 0;
+  *mystep3 = 1;
+  *mystep4 = 1;
+  wait(0.01);
+  *mystep1 = 1;
+  *mystep2 = 0;
+  *mystep3 = 0;
+  *mystep4 = 1;
+  wait(0.01);
+  currentPosition++;
 }
 
 void Stepper::findHome(){
-    while(!home) {
-        stepCW();
-    }
-    currentPosition = 0;
+  while(!home) {
+    stepCW();
+  }
+  currentPosition = 0;
 }
 
 //takes angle in degrees
 void Stepper::setAngle(double targetAngle) {
-    targetPosition = math::floor(((targetAngle+360)%360) / degreesPerStep);
-    // this makes sure your angle is between 0 and 360 degrees.
+  targetPosition = ((int)floor(targetAngle+360)%360) / degreesPerStep;
+  // this makes sure your angle is between 0 and 360 degrees.
 }
 
 void Stepper::stepperLoop(){
   if(currentPosition == targetPosition) {
     stepperOff();
   } else {
-    if(targetAngle > currentAngle) {
-      turnCCW();
-    } else { //if(targetAngle < currentAngle)
-      turnCW();
+    if(targetPosition > currentPosition) {
+      stepCCW();
+    } else { //if(targetPosition < currentPosition)
+      stepCW();
     }
   }
 }
 
 void Stepper::testStepper()
 {
-    pc.printf("Hello World!\n");
-    for(int i = 0; i < 512; i++) {
-        *mystep4 = 0;
-        *mystep1 = 1;
-        wait(0.01);
-        *mystep1 = 0;
-        *mystep2 = 1;
-        wait(0.01);
-        *mystep2 = 0;
-        *mystep3 = 1;
-        wait(0.01);
-        *mystep3 = 0;
-        *mystep4 = 1;
-        wait(0.01);
-    }
-    wait(0.1);
-    pc.printf("turning around!\n");
-    for(int i = 0; i < 512; i++) {
-        *mystep1 = 0;
-        *mystep4 = 1;
-        wait(0.01);
-        *mystep4 = 0;
-        *mystep3 = 1;
-        wait(0.01);
-        *mystep3 = 0;
-        *mystep2 = 1;
-        wait(0.01);
-        *mystep2 = 0;
-        *mystep1 = 1;
-        wait(0.01);
-    }
+  pc.printf("Hello World!\n");
+  for(int i = 0; i < 512; i++) {
+    *mystep1 = 0;
+    *mystep2 = 0;
+    *mystep3 = 1;
+    *mystep4 = 1;
+    wait(0.01);
+    *mystep1 = 0;
+    *mystep2 = 1;
+    *mystep3 = 1;
+    *mystep4 = 0;
+    wait(0.01);
+    *mystep1 = 1;
+    *mystep2 = 1;
+    *mystep3 = 0;
+    *mystep4 = 0;
+    wait(0.01);
+    *mystep1 = 1;
+    *mystep2 = 0;
+    *mystep3 = 0;
+    *mystep4 = 1;
+    wait(0.01);
+  }
+  wait(0.1);
+  pc.printf("turning around!\n");
+  for(int i = 0; i < 512; i++) {
+    *mystep1 = 1;
+    *mystep2 = 1;
+    *mystep3 = 0;
+    *mystep4 = 0;
+    wait(0.01);
+    *mystep1 = 0;
+    *mystep2 = 1;
+    *mystep3 = 1;
+    *mystep4 = 0;
+    wait(0.01);
+    *mystep1 = 0;
+    *mystep2 = 0;
+    *mystep3 = 1;
+    *mystep4 = 1;
+    wait(0.01);
+    *mystep1 = 1;
+    *mystep2 = 0;
+    *mystep3 = 0;
+    *mystep4 = 1;
+    wait(0.01);
+  }
 }
