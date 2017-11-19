@@ -70,7 +70,7 @@ int main()
     //INITIALIZE ALTITUDE STEPPER MOTOR
     Stepper *altMotor = new Stepper(ALT1, ALT2, ALT3, ALT4, ALTHOME);
     altMotor->findHome(); // home should be pointing -90 deg (straight down)
-    pc.printf("ALTstep find home\n")
+    pc.printf("ALTstep find home\n");
 
     //SET UP SOME VARIABLES
     double ro[3];
