@@ -2,6 +2,8 @@
 #include "stepper.h"
 #include "math.h"
 
+#define STEP_DELAY .01
+
 extern Serial pc;
 
 
@@ -18,6 +20,7 @@ Stepper::Stepper(PinName pin1, PinName pin2, PinName pin3, PinName pin4, PinName
     mystep3 = new DigitalOut(pin3);
     mystep4 = new DigitalOut(pin4);
     home = new DigitalIn(homepin);
+    home->mode(PullUp);
     stepsPerDegree = 512/360;
     degreesPerStep = 360/512;
     findHome();
@@ -43,22 +46,22 @@ void Stepper::stepCW(){
   *mystep2 = 0;
   *mystep3 = 1;
   *mystep4 = 1;
-  wait(0.01);
+  wait(STEP_DELAY);
   *mystep1 = 0;
   *mystep2 = 1;
   *mystep3 = 1;
   *mystep4 = 0;
-  wait(0.01);
+  wait(STEP_DELAY);
   *mystep1 = 1;
   *mystep2 = 1;
   *mystep3 = 0;
   *mystep4 = 0;
-  wait(0.01);
+  wait(STEP_DELAY);
   *mystep1 = 1;
   *mystep2 = 0;
   *mystep3 = 0;
   *mystep4 = 1;
-  wait(0.01);
+  wait(STEP_DELAY);
   currentPosition--;
 }
 
@@ -67,27 +70,29 @@ void Stepper::stepCCW(){
   *mystep2 = 1;
   *mystep3 = 0;
   *mystep4 = 0;
-  wait(0.01);
+  wait(STEP_DELAY);
   *mystep1 = 0;
   *mystep2 = 1;
   *mystep3 = 1;
   *mystep4 = 0;
-  wait(0.01);
+  wait(STEP_DELAY);
   *mystep1 = 0;
   *mystep2 = 0;
   *mystep3 = 1;
   *mystep4 = 1;
-  wait(0.01);
+  wait(STEP_DELAY);
   *mystep1 = 1;
   *mystep2 = 0;
   *mystep3 = 0;
   *mystep4 = 1;
-  wait(0.01);
+  wait(STEP_DELAY);
   currentPosition++;
 }
 
 void Stepper::findHome(){
-  while(!home) {
+  pc.printf("finding home %u\n", !*home);
+  while(!*home) {
+  pc.printf("finding home %u\n", !*home);
     stepCW();
   }
   currentPosition = 0;
@@ -118,22 +123,22 @@ void Stepper::testStepper()
     *mystep2 = 0;
     *mystep3 = 1;
     *mystep4 = 1;
-    wait(0.01);
+    wait(STEP_DELAY);
     *mystep1 = 0;
     *mystep2 = 1;
     *mystep3 = 1;
     *mystep4 = 0;
-    wait(0.01);
+    wait(STEP_DELAY);
     *mystep1 = 1;
     *mystep2 = 1;
     *mystep3 = 0;
     *mystep4 = 0;
-    wait(0.01);
+    wait(STEP_DELAY);
     *mystep1 = 1;
     *mystep2 = 0;
     *mystep3 = 0;
     *mystep4 = 1;
-    wait(0.01);
+    wait(STEP_DELAY);
   }
   wait(0.1);
   pc.printf("turning around!\n");
@@ -142,21 +147,21 @@ void Stepper::testStepper()
     *mystep2 = 1;
     *mystep3 = 0;
     *mystep4 = 0;
-    wait(0.01);
+    wait(STEP_DELAY);
     *mystep1 = 0;
     *mystep2 = 1;
     *mystep3 = 1;
     *mystep4 = 0;
-    wait(0.01);
+    wait(STEP_DELAY);
     *mystep1 = 0;
     *mystep2 = 0;
     *mystep3 = 1;
     *mystep4 = 1;
-    wait(0.01);
+    wait(STEP_DELAY);
     *mystep1 = 1;
     *mystep2 = 0;
     *mystep3 = 0;
     *mystep4 = 1;
-    wait(0.01);
+    wait(STEP_DELAY);
   }
 }
