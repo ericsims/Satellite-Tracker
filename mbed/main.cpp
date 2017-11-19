@@ -241,7 +241,7 @@ int main()
 
             pc.printf("Altituded: %f \n Azimuth: %f \n", elevation, azimuth);
 
-            azMotor.setAngle(90+(double)azimuth);
+            azMotor.setAngle(180-(double)azimuth);
             altMotor.setAngle(180-(double)elevation);
             
             for(int z = 0; z < 20; z++) {
