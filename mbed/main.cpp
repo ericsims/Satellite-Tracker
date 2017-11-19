@@ -6,6 +6,10 @@ Modified 18 Nov 2017 by Giselle Koo
 #include "mbed.h"
 #include <string>
 #include <cstring>
+#include <sstream>
+#include <vector>
+#include <iterator>
+
 #include "SGP4_vallado_gradyh/sgp4ext.h"
 #include "SGP4_vallado_gradyh/sgp4unit.h"
 #include "SGP4_vallado_gradyh/sgp4io.h"
@@ -13,7 +17,8 @@ Modified 18 Nov 2017 by Giselle Koo
 #include "stepper.h"
 
 Serial pc(USBTX, USBRX);
-
+DigitalOut led2(LED2);
+    
 // pin assignments
 
 #define AZ1 p5
@@ -65,9 +70,53 @@ void setLocData(double lat, double lon, double alt) {
   siteLonRad = siteLon * pi / 180.0;
 }
 
+string text = "";
+    
+
+std::vector<std::string> split(const std::string &text, char sep) {
+  std::vector<std::string> tokens;
+  std::size_t start = 0, end = 0;
+  while ((end = text.find(sep, start)) != std::string::npos) {
+    tokens.push_back(text.substr(start, end - start));
+    start = end + 1;
+  }
+  tokens.push_back(text.substr(start));
+  return tokens;
+}
+
+void SerialInterruptHandler(void)
+{
+    while(pc.readable()) {
+      char nChar = pc.getc();
+      text += nChar;
+      if(nChar == '\n' || nChar == '\r') {
+        if(text.length() > 1) {
+          printf("received: %s\n", text.c_str());
+          
+          std::vector<std::string> params = split(text, ':');
+          if(params.size() > 1) {
+            //printf("one %s, two %s\n", params[0].c_str(), params[1].c_str());
+            if(params[0].compare("Time") == 0) {
+              printf("time\n");
+              std::stringstream timestr(params[0]);
+              int x = 0;
+              timestr >> x;
+              set_time(x);
+            }
+          }         
+        }
+        text = "";
+      }
+    }
+    led2 = !led2;
+    return;
+}
 
 int main()
 {
+    
+    pc.attach(&SerialInterruptHandler, Serial::RxIrq);
+  
     //SET REAL TIME CLOCK (Set values manually using custom excel function until I find a way to do it automatically)
     set_time(TIME);
     printf("compt: %i\n", TIME);
@@ -157,7 +206,6 @@ int main()
     //BEGIN SATELLITE TRACKING
     while(1)
     {
-        pc.printf("loop\n");
         //RUN SGP4 AND COORDINATE TRANSFORMATION COMPUTATIONS
         jdC = getJulianFromUnix(time(NULL));
         tsince = (jdC - jd) * 24.0 * 60.0;
@@ -178,7 +226,7 @@ int main()
             elevation = razel[2]*180/pi;
             if(elevation<0) elevation+=360.0;
 
-            pc.printf("Altituded: %f \n Azimuth: %f \n", elevation, azimuth);
+            //pc.printf("Altituded: %f \n Azimuth: %f \n", elevation, azimuth);
 
             azMotor.setAngle((double)azimuth);
             altMotor.setAngle(180-(double)elevation);
