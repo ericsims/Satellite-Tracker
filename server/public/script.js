@@ -31,8 +31,32 @@ function addSatellite(data){
 	list.insertBefore(sat, list.childNodes[0]);
 }
 
+var selectedSatellite = -1;
 function clickSat(){
   console.log(this.id);
+  if(selectedSatellite == this.id) {
+    deselectSat(this);
+  } else {
+    selectSat(this);
+  }
+}
+
+function selectSat(element){
+  if(selectedSatellite != -1){
+    deselectSat(document.getElementById(selectedSatellite));
+  }
+  element.classList.add("selected");
+  selectedSatellite = element.id;
+  socket.emit('switch satellite', {data: element.id});
+  console.log('requested Satellite changes');
+}
+
+function deselectSat(element){
+  if(selectedSatellite != -1){
+    element.classList.remove("selected");
+  }
+  selectedSatellite = -1;
+  console.log('deselect');
 }
 
 function test(){
@@ -47,7 +71,7 @@ function updateTime(){
 
 function switchSat(){
   socket.emit('switch satellite', {data: 'ISS'});
-  console.log('requested Satellite changes');  
+  console.log('requested Satellite changes');
 }
 
 function updateTLE() {

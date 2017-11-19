@@ -18,6 +18,10 @@ h1 {
   font-family: 'Comic Sans MS', "Comic Sans", cursive;
 }
 
+.selected {
+  background-color: #00aa0c;
+}
+
 ul {
 
   display: flex;
