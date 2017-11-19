@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/ericsims/satellite-tracker#readme",
   "dependencies": {
-    "serialport": "^6.0.4"
+    "express": "^4.16.2",
+    "request": "^2.83.0",
+    "serialport": "^6.0.4",
+    "socket.io": "^2.0.4",
+    "sqlite3": "^3.1.13"
   }
 }
