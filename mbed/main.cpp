@@ -53,6 +53,8 @@ void setTime(int);
 void setTLE(char[], char[]);
 void setLocData(double, double, double);
 
+bool reboot = false;
+
 void setTime(int time) {
   set_time(time); // time in epoch
 }
@@ -110,6 +112,7 @@ void SerialInterruptHandler(void)
           }         
         }
         text = "";
+        reboot = true;
       } else {
         text += nChar;
       }
@@ -121,22 +124,31 @@ void SerialInterruptHandler(void)
 int main()
 {
     
-    pc.attach(&SerialInterruptHandler, Serial::RxIrq);
+  //ENTER TWO-LINE ELEMENT HERE
+  std::memcpy(longstr1, "1 25544U 98067A   17322.95053927  .00004162  00000-0  69955-4 0  9996", 200);
+  std::memcpy(longstr2, "2 25544  51.6415 346.8032 0004306 128.6427 307.0316 15.54181392 85825", 200);
+  pc.printf("TLE 1: %s \n", longstr1);
+  pc.printf("TLE 2: %s \n", longstr2);
   
-    //SET REAL TIME CLOCK (Set values manually using custom excel function until I find a way to do it automatically)
-    set_time(TIME);
-    printf("compt: %i\n", TIME);
-    
-    //INITIALIZE AZIMUTH STEPPER MOTOR
-    Stepper azMotor(AZ1, AZ2, AZ3, AZ4, AZHOME, 512*3);
-    azMotor.findHome(); // home should be pointing North
-    pc.printf("AZstep find home\n");
+  pc.attach(&SerialInterruptHandler, Serial::RxIrq);
 
-    //INITIALIZE ALTITUDE STEPPER MOTOR
-    Stepper altMotor(ALT1, ALT2, ALT3, ALT4, ALTHOME, 512);
-    altMotor.findHome(); // home should be pointing -90 deg (straight down)
-    pc.printf("ALTstep find home\n");
+  //SET REAL TIME CLOCK (Set values manually using custom excel function until I find a way to do it automatically)
+  set_time(TIME);
+  printf("compt: %i\n", TIME);
+  
+  //INITIALIZE AZIMUTH STEPPER MOTOR
+  Stepper azMotor(AZ1, AZ2, AZ3, AZ4, AZHOME, 512*3);
+  azMotor.findHome(); // home should be pointing North
+  pc.printf("AZstep find home\n");
 
+  //INITIALIZE ALTITUDE STEPPER MOTOR
+  Stepper altMotor(ALT1, ALT2, ALT3, ALT4, ALTHOME, 512);
+  altMotor.findHome(); // home should be pointing 0 deg (at horizon)
+  pc.printf("ALTstep find home\n");
+
+  
+  while(1) {
+    reboot = false;
     //SET UP SOME VARIABLES
     double ro[3];
     double vo[3];
@@ -179,11 +191,6 @@ int main()
     strcpy(monstr[11], "Nov");
     strcpy(monstr[12], "Dec");*/
 
-    //ENTER TWO-LINE ELEMENT HERE
-    std::memcpy(longstr1, "1 25544U 98067A   17322.95053927  .00004162  00000-0  69955-4 0  9996", 200);
-    std::memcpy(longstr2, "2 25544  51.6415 346.8032 0004306 128.6427 307.0316 15.54181392 85825", 200);
-    pc.printf("TLE 1: %s \n", longstr1);
-    pc.printf("TLE 2: %s \n", longstr2);
 
     //ENTER SITE DETAILS HERE
     siteLat = 41.798599; //+North (UHart)
@@ -210,7 +217,7 @@ int main()
     //pc.printf("            Time             Lat            Long          Height           Range         Azimuth       Elevation\n");
 
     //BEGIN SATELLITE TRACKING
-    while(1)
+    while(!reboot)
     {
         //RUN SGP4 AND COORDINATE TRANSFORMATION COMPUTATIONS
         jdC = getJulianFromUnix(time(NULL));
@@ -234,10 +241,10 @@ int main()
 
             //pc.printf("Altituded: %f \n Azimuth: %f \n", elevation, azimuth);
 
-            azMotor.setAngle((double)azimuth);
+            azMotor.setAngle(90+(double)azimuth);
             altMotor.setAngle(180-(double)elevation);
             
-            while(true) {
+            for(int z = 0; z < 20; z++) {
               int imadeitfinally = 0;
               imadeitfinally += azMotor.stepperLoop();
               imadeitfinally += altMotor.stepperLoop();
@@ -252,5 +259,6 @@ int main()
         //wait(.05);
 
     }
+  }
 
 }
