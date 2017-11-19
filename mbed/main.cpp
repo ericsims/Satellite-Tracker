@@ -239,7 +239,7 @@ int main()
             elevation = razel[2]*180/pi;
             if(elevation<0) elevation+=360.0;
 
-            //pc.printf("Altituded: %f \n Azimuth: %f \n", elevation, azimuth);
+            pc.printf("Altituded: %f \n Azimuth: %f \n", elevation, azimuth);
 
             azMotor.setAngle(90+(double)azimuth);
             altMotor.setAngle(180-(double)elevation);
