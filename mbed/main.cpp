@@ -134,7 +134,7 @@ int main()
 
     //INITIALIZE ALTITUDE STEPPER MOTOR
     Stepper altMotor(ALT1, ALT2, ALT3, ALT4, ALTHOME, 512);
-    altMotor.findHome(); // home should be pointing -90 deg (straight down)
+    altMotor.findHome(); // home should be pointing 0 deg (at horizon)
     pc.printf("ALTstep find home\n");
 
     //SET UP SOME VARIABLES
@@ -234,7 +234,7 @@ int main()
 
             //pc.printf("Altituded: %f \n Azimuth: %f \n", elevation, azimuth);
 
-            azMotor.setAngle((double)azimuth);
+            azMotor.setAngle(90+(double)azimuth);
             altMotor.setAngle(180-(double)elevation);
             
             while(true) {
