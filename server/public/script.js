@@ -26,3 +26,8 @@ function updateTime(){
   socket.emit('update time', {data: 'update time pls'});
   console.log('requested time update');
 }
+
+function updateTLE() {
+  socket.emit('update TLE', {data: 'update tle pls'});
+  console.log('requested TLE update');
+}
