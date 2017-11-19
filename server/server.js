@@ -8,8 +8,8 @@ var db = require('./db.js');
 
 var spacetrack = require('spacetrack');
 spacetrack.login({
-  username: '',
-  password: ''
+  username: 'gisellegk@gmail.com',
+  password: 'H.leucocephalus8'
   // this is so fucking sketch
 });
 
@@ -42,6 +42,8 @@ io.on('connection', function(socket) {
 
   socket.on('update time', function() {
     console.log("attempt to update the time");
+    var date = new Date().toLocaleString();
+    console.log(date);
   });
 
   socket.on('update TLE', function() {
@@ -51,6 +53,12 @@ io.on('connection', function(socket) {
     // ask CelesTrack for the new TLEs
     // save the new TLEs in the DB
   });
+
+  socket.on('switch satellite', function(msg){
+    console.log(msg);
+    // tell the mbed processor to follow a different satellite
+    
+  })
 
 
   socket.on('disconnect', function() { console.log('disconnected'); });
@@ -97,8 +105,16 @@ function getTLE(noradIdList){
   })
   .then(function(result) {
     console.log( result );
-    db.updateNoradId(catId, newtle1, newtle2, callback)
-    console.log('done');
+    db.updateNoradId(result[0].catalogNumber, result[0].tle[1], result[0].tle[2], function(err){
+      console.log('update ' + result[0].name);
+      db.updateNoradId(result[1].catalogNumber, result[1].tle[1], result[1].tle[2], function(err){
+        console.log('update ' + result[1].name);
+        db.updateNoradId(result[2].catalogNumber, result[2].tle[1], result[2].tle[2], function(err){
+          console.log('update ' + result[2].name);
+          console.log('done');
+        })
+      });
+    });
   }, function(err) {
     console.error('error', err.stack);
   });
