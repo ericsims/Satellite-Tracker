@@ -1,0 +1,31 @@
+
+@import url(https://fonts.googleapis.com/css?family=Muli);
+@import url(https://fonts.googleapis.com/css?family=Slabo+13px);
+
+
+body {
+  font-family: 'Muli', sans-serif;
+  font-size: 25px;
+  text-align: center;
+}
+
+h1 {
+  font-family:'Slabo 13px', serif;
+  font-size: 2em;
+  margin-bottom: 0;
+}
+.cs {
+  font-family: 'Comic Sans MS', "Comic Sans", cursive;
+}
+
+ul {
+
+  display: flex;
+  flex-direction: column;
+  align-items flex-start;
+}
+
+ul li {
+  display: inline-block;
+  margin-bottom: 10px;
+}
