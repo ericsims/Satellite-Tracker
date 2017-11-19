@@ -64,4 +64,6 @@ typings/
 .env
 
 
+mbed/BUILD
+
 # End of https://www.gitignore.io/api/node
