@@ -65,10 +65,12 @@ int main()
     //INITIALIZE AZIMUTH STEPPER MOTOR
     Stepper *azMotor = new Stepper(AZ1, AZ2, AZ3, AZ4, AZHOME);
     azMotor->findHome(); // home should be pointing North
+    pc.printf("AZstep find home\n");
 
     //INITIALIZE ALTITUDE STEPPER MOTOR
     Stepper *altMotor = new Stepper(ALT1, ALT2, ALT3, ALT4, ALTHOME);
     altMotor->findHome(); // home should be pointing -90 deg (straight down)
+    pc.printf("ALTstep find home\n")
 
     //SET UP SOME VARIABLES
     double ro[3];
@@ -93,7 +95,7 @@ int main()
     float azimuth; //-180 to 0 to 180
 
     //SET REAL TIME CLOCK (Set values manually using custom excel function until I find a way to do it automatically)
-    set_time(1440763200);
+    set_time(1511065766779);
 
     //SET VARIABLES
     opsmode = 'i';
@@ -117,6 +119,8 @@ int main()
     //ENTER TWO-LINE ELEMENT HERE
     std::memcpy(longstr1, "1 25544U 98067A   17322.95053927  .00004162  00000-0  69955-4 0  9996", 200);
     std::memcpy(longstr2, "2 25544  51.6415 346.8032 0004306 128.6427 307.0316 15.54181392 85825", 200);
+    pc.printf("TLE 1: %s \n", longstr1);
+    pc.printf("TLE 2: %s \n", longstr2);
 
     //ENTER SITE DETAILS HERE
     siteLat = 41.798599; //+North (UHart)
@@ -162,6 +166,8 @@ int main()
         {
             azimuth = razel[1]*180/pi;
             elevation = razel[2]*180/pi;
+
+            pc.printf("Altitude: %f \n Azimuth: %f \n", elevation, azimuth);
 
             azMotor->setAngle((double)azimuth);
             altMotor->setAngle((double)elevation);
