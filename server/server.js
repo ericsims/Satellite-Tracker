@@ -4,6 +4,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 
+var pointer = require('./serial.js');
 var db = require('./db.js');
 
 var spacetrack = require('spacetrack');
@@ -12,6 +13,10 @@ spacetrack.login({
   password: 'H.leucocephalus8'
   // this is so fucking sketch
 });
+
+
+pointer.sendTime();
+pointer.attachParser();
 
 app.use(express.static('public'));
 
@@ -54,6 +59,7 @@ io.on('connection', function(socket) {
 
   socket.on('update time', function() {
     console.log("attempt to update the time");
+    pointer.sendTime();
     var date = new Date().toLocaleString();
     console.log(date);
   });
@@ -67,9 +73,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on('switch satellite', function(msg){
-    console.log(msg);
     // tell the mbed processor to follow a different satellite
-
+    db.getSatellite(msg.data, function(err, row) {
+      //console.log('Switching satellite to: ' + msg.data + '\n ONE: ' + row.tle1 + '\n TWO: ' + row.tle2);
+      pointer.sendTLE(row.tle1, row.tle2);
+    });
   })
 
 

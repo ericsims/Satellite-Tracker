@@ -18,5 +18,6 @@ module.exports.sendTime = function () {
 
 // Send TLE
 module.exports.sendTLE = function(TLE1, TLE2) {
-  port.write('TLE1:'+TLE1.replace(/(\n|\r)+$/, '')+':'+TLE2.replace(/(\n|\r)+$/, '')+'\n');
+  console.log('sent: TLE:'+TLE1.replace(/(\n|\r)+$/, '')+':'+TLE2.replace(/(\n|\r)+$/, ''));
+  port.write('TLE:'+TLE1.replace(/(\n|\r)+$/, '')+':'+TLE2.replace(/(\n|\r)+$/, '')+'\n');
 }
