@@ -16,19 +16,25 @@ Serial pc(USBTX, USBRX);
 
 // pin assignments
 
-#define ALT1 p9
-#define ALT2 p10
-#define ALT3 p11
-#define ALT4 p12
-
-#define ALTHOME p13
-
 #define AZ1 p5
 #define AZ2 p6
 #define AZ3 p7
 #define AZ4 p8
 
-#define AZHOME p14
+#define AZHOME p13
+
+#define ALT1 p9
+#define ALT2 p10
+#define ALT3 p11
+#define ALT4 p12
+
+#define ALTHOME p14
+
+#ifdef COMPILE_TIME
+  #define TIME COMPILE_TIME
+#else
+  #define TIME 1511080532
+#endif
 
 // Sketchy global vars go here or whatever.
 // TLE lines 1 and 2
@@ -62,14 +68,18 @@ void setLocData(double lat, double lon, double alt) {
 
 int main()
 {
+    //SET REAL TIME CLOCK (Set values manually using custom excel function until I find a way to do it automatically)
+    set_time(TIME);
+    printf("compt: %i\n", TIME);
+    
     //INITIALIZE AZIMUTH STEPPER MOTOR
-    Stepper *azMotor = new Stepper(AZ1, AZ2, AZ3, AZ4, AZHOME);
-    azMotor->findHome(); // home should be pointing North
+    Stepper azMotor(AZ1, AZ2, AZ3, AZ4, AZHOME, 512*3);
+    azMotor.findHome(); // home should be pointing North
     pc.printf("AZstep find home\n");
 
     //INITIALIZE ALTITUDE STEPPER MOTOR
-    Stepper *altMotor = new Stepper(ALT1, ALT2, ALT3, ALT4, ALTHOME);
-    altMotor->findHome(); // home should be pointing -90 deg (straight down)
+    Stepper altMotor(ALT1, ALT2, ALT3, ALT4, ALTHOME, 512);
+    altMotor.findHome(); // home should be pointing -90 deg (straight down)
     pc.printf("ALTstep find home\n");
 
     //SET UP SOME VARIABLES
@@ -87,15 +97,13 @@ int main()
     double razelrates[3];
     int  year; int mon; int day; int hr; int min;
     int yearC; int monC; int dayC; int hrC; int minC;
-    typedef char str3[4];
-    str3 monstr[13];
+    //typedef char str3[4];
+    //str3 monstr[13];
     elsetrec satrec;
 
     float elevation;
     float azimuth; //-180 to 0 to 180
 
-    //SET REAL TIME CLOCK (Set values manually using custom excel function until I find a way to do it automatically)
-    set_time(1511065766779);
 
     //SET VARIABLES
     opsmode = 'i';
@@ -103,7 +111,7 @@ int main()
     typeinput = 'e';
     whichconst = wgs72;
     getgravconst( whichconst, tumin, mu, radiusearthkm, xke, j2, j3, j4, j3oj2 );
-    strcpy(monstr[1], "Jan");
+    /*strcpy(monstr[1], "Jan");
     strcpy(monstr[2], "Feb");
     strcpy(monstr[3], "Mar");
     strcpy(monstr[4], "Apr");
@@ -114,7 +122,7 @@ int main()
     strcpy(monstr[9], "Sep");
     strcpy(monstr[10], "Oct");
     strcpy(monstr[11], "Nov");
-    strcpy(monstr[12], "Dec");
+    strcpy(monstr[12], "Dec");*/
 
     //ENTER TWO-LINE ELEMENT HERE
     std::memcpy(longstr1, "1 25544U 98067A   17322.95053927  .00004162  00000-0  69955-4 0  9996", 200);
@@ -139,16 +147,17 @@ int main()
     jd = satrec.jdsatepoch;
 
     invjday(jd, year, mon, day, hr, min, sec);
-    pc.printf("Scenario Epoch   %3i %3s%5i%3i:%2i:%12.9f \n", day, monstr[mon], year, hr, min, sec);
+    //pc.printf("Scenario Epoch   %3i %3s%5i%3i:%2i:%12.9f \n", day, monstr[mon], year, hr, min, sec);
     jdC = getJulianFromUnix(time(NULL));
     invjday( jdC, yearC, monC, dayC, hrC, minC, secC);
-    pc.printf("Current Time    %3i %3s%5i%3i:%2i:%12.9f \n", dayC, monstr[monC], yearC, hrC, minC, secC);
+    //pc.printf("Current Time    %3i %3s%5i%3i:%2i:%12.9f \n", dayC, monstr[monC], yearC, hrC, minC, secC);
     //pc.printf("            Time            PosX            PosY            PosZ              Vx              Vy              Vz\n");
     //pc.printf("            Time             Lat            Long          Height           Range         Azimuth       Elevation\n");
 
     //BEGIN SATELLITE TRACKING
     while(1)
     {
+        pc.printf("loop\n");
         //RUN SGP4 AND COORDINATE TRANSFORMATION COMPUTATIONS
         jdC = getJulianFromUnix(time(NULL));
         tsince = (jdC - jd) * 24.0 * 60.0;
@@ -165,22 +174,28 @@ int main()
         else
         {
             azimuth = razel[1]*180/pi;
+            if(azimuth<0) azimuth+=360.0;
             elevation = razel[2]*180/pi;
+            if(elevation<0) elevation+=360.0;
 
-            pc.printf("Altitude: %f \n Azimuth: %f \n", elevation, azimuth);
+            pc.printf("Altituded: %f \n Azimuth: %f \n", elevation, azimuth);
 
-            azMotor->setAngle((double)azimuth);
-            altMotor->setAngle((double)elevation);
-
-            azMotor->stepperLoop();
-            altMotor->stepperLoop();
+            azMotor.setAngle((double)azimuth);
+            altMotor.setAngle(180-(double)elevation);
+            
+            while(true) {
+              int imadeitfinally = 0;
+              imadeitfinally += azMotor.stepperLoop();
+              imadeitfinally += altMotor.stepperLoop();
+              if(imadeitfinally >=2 ) break;
+            };
 
             //pc.printf("%16.8f%16.8f%16.8f%16.8f%16.8f%16.8f%16.8f\n", satrec.t, recef[0], recef[1], recef[2], vecef[0], vecef[1], vecef[2]);
             //pc.printf("%16.8f%16.8f%16.8f%16.8f%16.8f%16.8f%16.8f\n", satrec.t, latlongh[0]*180/pi, latlongh[1]*180/pi, latlongh[2], razel[0], razel[1]*180/pi, razel[2]*180/pi);
 
         }
 
-        wait(1);
+        //wait(.05);
 
     }
 
