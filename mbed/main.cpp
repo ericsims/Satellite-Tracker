@@ -4,13 +4,15 @@ Modified 18 Nov 2017 by Giselle Koo
 */
 
 #include "mbed.h"
-#include "sgp4ext.h"
-#include "sgp4unit.h"
-#include "sgp4io.h"
-#include "sgp4coord.h"
+#include <string>
+#include <cstring>
+#include "SGP4_vallado_gradyh/sgp4ext.h"
+#include "SGP4_vallado_gradyh/sgp4unit.h"
+#include "SGP4_vallado_gradyh/sgp4io.h"
+#include "SGP4_vallado_gradyh/sgp4coord.h"
 #include "stepper.h"
 
-Serial pc(SERIAL_TX, SERIAL_RX);
+Serial pc(USBTX, USBRX);
 
 // pin assignments
 
@@ -30,23 +32,23 @@ Serial pc(SERIAL_TX, SERIAL_RX);
 
 // Sketchy global vars go here or whatever.
 // TLE lines 1 and 2
-char longstr1[];
-char longstr2[];
+char longstr1[200];
+char longstr2[200];
 // Site location data
 double siteLat, siteLon, siteAlt, siteLatRad, siteLonRad;
 
 //Function prototypes
-void setTime(int time);
-void setTLE(char[] TLE1, char[] TLE2);
-void setLocData(double lat, double lon, double alt)
+void setTime(int);
+void setTLE(char[], char[]);
+void setLocData(double, double, double);
 
 void setTime(int time) {
   set_time(time); // time in epoch
 }
 
-void setTLE(char[] TLE1, char[] TLE2) {
-  longstr1 = TLE1;
-  longstr2 = TLE2;
+void setTLE(std::string TLE1, std::string TLE2) {
+  std::memcpy(longstr1, &TLE1, 200);
+  std::memcpy(longstr2, &TLE2, 200);
 }
 
 void setLocData(double lat, double lon, double alt) {
@@ -61,11 +63,11 @@ void setLocData(double lat, double lon, double alt) {
 int main()
 {
     //INITIALIZE AZIMUTH STEPPER MOTOR
-    Stepper *azMotor = Stepper(AZ1, AZ2, AZ3, AZ4, AZHOME);
+    Stepper *azMotor = new Stepper(AZ1, AZ2, AZ3, AZ4, AZHOME);
     azMotor->findHome(); // home should be pointing North
 
     //INITIALIZE ALTITUDE STEPPER MOTOR
-    Stepper *altMotor = Stepper(ALT1, ALT2, ALT3, ALT4, ALTHOME);
+    Stepper *altMotor = new Stepper(ALT1, ALT2, ALT3, ALT4, ALTHOME);
     altMotor->findHome(); // home should be pointing -90 deg (straight down)
 
     //SET UP SOME VARIABLES
@@ -113,8 +115,8 @@ int main()
     strcpy(monstr[12], "Dec");
 
     //ENTER TWO-LINE ELEMENT HERE
-    longstr1 = "1 25544U 98067A   17322.95053927  .00004162  00000-0  69955-4 0  9996";
-    longstr2 = "2 25544  51.6415 346.8032 0004306 128.6427 307.0316 15.54181392 85825";
+    std::memcpy(longstr1, "1 25544U 98067A   17322.95053927  .00004162  00000-0  69955-4 0  9996", 200);
+    std::memcpy(longstr2, "2 25544  51.6415 346.8032 0004306 128.6427 307.0316 15.54181392 85825", 200);
 
     //ENTER SITE DETAILS HERE
     siteLat = 41.798599; //+North (UHart)
