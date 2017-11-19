@@ -197,6 +197,7 @@ CXX_FLAGS += -DDEVICE_DEBUG_AWARENESS=1
 CXX_FLAGS += -DDEVICE_LOCALFILESYSTEM=1
 CXX_FLAGS += -include
 CXX_FLAGS += mbed_config.h
+CXX_FLAGS += -DCOMPILE_TIME=`date '+%s'`
 
 ASM_FLAGS += -x
 ASM_FLAGS += assembler-with-cpp
