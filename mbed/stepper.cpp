@@ -101,6 +101,7 @@ void Stepper::findHome(){
 //takes angle in degrees
 void Stepper::setAngle(double targetAngle) {
   targetPosition = ((int)floor(targetAngle+360)%360) / degreesPerStep;
+  // this makes sure your angle is between 0 and 360 degrees.
 }
 
 void Stepper::stepperLoop(){
