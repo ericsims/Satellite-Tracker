@@ -16,19 +16,19 @@ Serial pc(USBTX, USBRX);
 
 // pin assignments
 
-#define ALT1 p12
-#define ALT2 p13
-#define ALT3 p14
-#define ALT4 p15
+#define ALT1 p9
+#define ALT2 p10
+#define ALT3 p11
+#define ALT4 p12
 
-#define ALTHOME p16
+#define ALTHOME p13
 
-#define AZ1 p17
-#define AZ2 p18
-#define AZ3 p19
-#define AZ4 p20
+#define AZ1 p5
+#define AZ2 p6
+#define AZ3 p7
+#define AZ4 p8
 
-#define AZHOME p21
+#define AZHOME p14
 
 // Sketchy global vars go here or whatever.
 // TLE lines 1 and 2
