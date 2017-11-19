@@ -88,7 +88,6 @@ void SerialInterruptHandler(void)
 {
     while(pc.readable()) {
       char nChar = pc.getc();
-      text += nChar;
       if(nChar == '\n' || nChar == '\r') {
         if(text.length() > 1) {
           printf("received: %s\n", text.c_str());
@@ -97,15 +96,22 @@ void SerialInterruptHandler(void)
           if(params.size() > 1) {
             //printf("one %s, two %s\n", params[0].c_str(), params[1].c_str());
             if(params[0].compare("Time") == 0) {
-              printf("time\n");
-              std::stringstream timestr(params[0]);
+              std::stringstream timestr(params[1]);
               int x = 0;
               timestr >> x;
+              printf("time is now: %u\n", x);
               set_time(x);
+            } else if(params[0].compare("TLE") == 0) {
+              std::memcpy(longstr1, params[1].c_str(), 200);
+              printf("TLE1 is now: %s\n", longstr1);
+              std::memcpy(longstr2, params[2].c_str(), 200);
+              printf("TLE2 is now: %s\n", longstr2);
             }
           }         
         }
         text = "";
+      } else {
+        text += nChar;
       }
     }
     led2 = !led2;

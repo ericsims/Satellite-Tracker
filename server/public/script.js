@@ -27,6 +27,11 @@ function updateTime(){
   console.log('requested time update');
 }
 
+function switchSat(){
+  socket.emit('switch satellite', {data: 'ISS'});
+  console.log('requested Satellite changes');  
+}
+
 function updateTLE() {
   socket.emit('update TLE', {data: 'update tle pls'});
   console.log('requested TLE update');
