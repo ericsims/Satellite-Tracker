@@ -3,7 +3,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
-  
+
 var pointer = require('./serial.js');
 var db = require('./db.js');
 
@@ -40,9 +40,21 @@ var server = http.listen(3000, function() {
 });
 
 io.on('connection', function(socket) {
+  var satdata = [];
   console.log('a user connected' + "\n");
-
-  socket.emit('welcome', { message: 'Welcome!', id: socket.id });
+  db.getSatellite("ISS", function(err, row){
+    console.log(row);
+    satdata[0] = row;
+    db.getSatellite("HST", function(err, row){
+      console.log(row);
+      satdata[1] = row;
+      db.getSatellite("NOAA15", function(err, row){
+        console.log(row);
+        satdata[2] = row;
+        socket.emit('welcome', { message: satdata, id: socket.id });
+      });
+    });
+  });
   socket.on('i am client', console.log);
 
   socket.on('update time', function() {

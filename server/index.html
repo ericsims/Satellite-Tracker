@@ -1,13 +1,18 @@
 <html>
 <head>
+  <link rel="stylesheet" type="text/css" href="./style.css">
   <script src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="./script.js"></script>
 </head>
 <body>
-  <div id="header">Satellite Tracker 3000</div>
-  <button id="debug" onclick="test()">ping</button>
-  <button id="time" onclick="updateTime()">update time</button>
-  <button id="tle" onclick="updateTLE()">update tle</button>
-
+  <div id="header"><h1>Satellite Tracker <img height="65px" src="http://itrscdn.fonts.com/IType/FontPreviewHandler.ashx?width=752&shopId=824896&fit=1&bg=FFFFFF&color=000000&txtvalue=%223000%22&cmd=&text=%223000%22&size=36"></h1></div>
+  <div id="buttonbar">
+    <button id="debug" onclick="test()">ping</button>
+    <button id="time" onclick="updateTime()">update time</button>
+    <button id="tle" onclick="updateTLE()">update tle</button>
+  </div>
+  <ul id="satellitelist">
+  </ul>
+<div id="footer"></div>
 </body>
 </html>

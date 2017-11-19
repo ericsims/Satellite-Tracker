@@ -36,7 +36,7 @@ module.exports.updateNoradId = function updateNoradId(catId, newtle1, newtle2, c
 }
 
 module.exports.getSatellite = function getSatellite(id, callback){
-  console.log('id');
+  console.log(id);
   db.get('SELECT * FROM satellites WHERE id=?', id, callback);
 }
 
