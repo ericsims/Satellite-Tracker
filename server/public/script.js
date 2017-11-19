@@ -25,7 +25,19 @@ socket.on('welcome', function(data) {
 function addSatellite(data){
   var list = document.getElementById('satellitelist');
 	var sat = document.createElement('li');
-	sat.appendChild(document.createTextNode(data.dispName + " | " + data.noradCatId + " "));
+  var title = document.createTextNode(data.dispName + " | " + data.noradCatId + " ");
+	var h1 = document.createElement('h2')
+  h1.appendChild(title);
+
+  var infobox = document.createElement('div');
+  infobox.classList += "infobox";
+  var img = document.createElement("img");
+  img.setAttribute('src', data.image);
+  infobox.appendChild(img);
+  infobox.appendChild(document.createTextNode(data.description));
+
+  sat.appendChild(h1);
+  sat.appendChild(infobox);
 	sat.id = data.id;
 	sat.addEventListener("click", clickSat);
 	list.insertBefore(sat, list.childNodes[0]);

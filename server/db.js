@@ -15,13 +15,13 @@ db.serialize(function() {
   } else {
     console.log("DB already exists. Checking for updates...");
   }
-  db.run("CREATE TABLE IF NOT EXISTS satellites (id TEXT, noradCatId INTEGER, dispName TEXT, tle1 TEXT, tle2 TEXT, downlink INTEGER, radioInterface TEXT)");
+  db.run("CREATE TABLE IF NOT EXISTS satellites (id TEXT, noradCatId INTEGER, dispName TEXT, tle1 TEXT, tle2 TEXT, downlink INTEGER, radioInterface TEXT, image TEXT, description TEXT)");
   if(populate) {
     var satellites = settings.satellites;
     for(var key in satellites){
       var sat = satellites[key];
       console.log(key);
-      db.run('INSERT INTO satellites VALUES (?,?,?,?,?,?,?)', key, sat.NORAD_CAT_ID, sat.dispName, sat.tle1, sat.tle2, sat.downlink, sat.radioInterface);
+      db.run('INSERT INTO satellites VALUES (?,?,?,?,?,?,?,?,?)', key, sat.NORAD_CAT_ID, sat.dispName, sat.tle1, sat.tle2, sat.downlink, sat.radioInterface, sat.image, sat.description);
     }
   }
 });
