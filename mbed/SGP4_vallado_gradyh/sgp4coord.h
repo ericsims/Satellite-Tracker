@@ -13,6 +13,7 @@ Ported to C++ by Grady Hillhouse with some modifications, July 2015.
 
 #include <math.h>
 #include <string.h>
+#include <cstdlib>
 
 void teme2ecef(double rteme[3], double vteme[3], double jdut1, double recef[3], double vecef[3]);
 

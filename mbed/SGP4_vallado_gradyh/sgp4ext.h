@@ -26,6 +26,7 @@
 
 #include <string.h>
 #include <math.h>
+#include <cstdlib>
 
 #include "sgp4unit.h"
 

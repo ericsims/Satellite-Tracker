@@ -51,6 +51,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <cstdlib>
 #define SGP4Version  "SGP4 Version 2011-12-30"
 
 #define pi 3.14159265358979323846
