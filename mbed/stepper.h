@@ -6,6 +6,8 @@ class Stepper
 {
   public:
     Stepper(PinName pin1, PinName pin2, PinName pin3, PinName pin4, PinName home);
+    double getStepsPerDegree();
+    double getDegreesPerStep();
     void stepperOff();
     void stepCW();
     void stepCCW();
@@ -17,6 +19,7 @@ class Stepper
   private:
     int currentPosition;
     int targetPosition;
+    double stepsPerDegree;
     double degreesPerStep;
     DigitalIn* home;
     DigitalOut* mystep1;

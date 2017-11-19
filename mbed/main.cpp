@@ -1,5 +1,6 @@
 /* Satellite Orbit Tracking Pointer
 Grady Hillhouse 2015
+Modified 18 Nov 2017 by Giselle Koo
 */
 
 #include "mbed.h"
@@ -7,25 +8,61 @@ Grady Hillhouse 2015
 #include "sgp4unit.h"
 #include "sgp4io.h"
 #include "sgp4coord.h"
-#include "Servo.h"
+#include "stepper.h"
 
 Serial pc(SERIAL_TX, SERIAL_RX);
-Servo EL_SERVO(D9);
 
+#define ALT1 p13
+#define ALT2 p14
+#define ALT3 p15
+#define ALT4 p16
 
+#define AZ1 p17
+#define AZ2 p18
+#define AZ3 p19
+#define AZ4 p20
+
+#define AZHOME p21
+
+// Sketchy global vars go here or whatever.
+// TLE lines 1 and 2
+char longstr1[];
+char longstr2[];
+
+// Site location data
+double siteLat, siteLon, siteAlt, siteLatRad, siteLonRad;
 
 //Function prototypes
 float Convert_El_to_Servo(float elevation);
+void setTime(int time);
+void setTLE(char[] TLE1, char[] TLE2);
+void setLocData(double lat, double lon, double alt)
 
+void setTime(int time) {
+  // time in epoch
+  set_time(time);
+}
+
+void setTLE(char[] TLE1, char[] TLE2){
+  longstr1 = TLE1;
+  longstr2 = TLE2;
+}
+
+void setLocData(double lat, double lon, double alt) {
+  siteLat = lat; //+North
+  siteLon = lon; //+East
+  siteAlt = alt; //km
+  siteLatRad = siteLat * pi / 180.0;
+  siteLonRad = siteLon * pi / 180.0;
+}
 
 int main()
 {
-    //INITIALIZE STEPPER MOTOR
-    Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-    Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 1);
-    AFMS.begin(2400);  // create with the frequency 2.4KHz
-    myMotor->setSpeed(1000);  // rpm (this has an upper limit way below 1000 rpm)
-    myMotor->release();
+    //INITIALIZE AZIMUTH STEPPER MOTOR
+    Stepper *azMotor = Stepper(AZ1, AZ2, AZ3, AZ4, AZHOME);
+    azMotor->findHome();
+
+    //INITIALIZE ALTITUDE STEPPER MOTOR
 
     //SET UP SOME VARIABLES
     double ro[3];
@@ -38,7 +75,6 @@ int main()
     double sec, secC, jd, jdC, tsince, startmfe, stopmfe, deltamin;
     double tumin, mu, radiusearthkm, xke, j2, j3, j4, j3oj2;
     double latlongh[3]; //lat, long in rad, h in km above ellipsoid
-    double siteLat, siteLon, siteAlt, siteLatRad, siteLonRad;
     double razel[3];
     double razelrates[3];
     int  year; int mon; int day; int hr; int min;
@@ -46,7 +82,7 @@ int main()
     typedef char str3[4];
     str3 monstr[13];
     elsetrec satrec;
-    double steps_per_degree = 1.38889; //Stepper motor steps per degree azimuth
+    double steps_per_degree = azMotor->getStepsPerDegree(); //Stepper motor steps per degree azimuth
     float elevation;
 
     //VARIABLES FOR STEPPER CALCULATIONS
@@ -86,8 +122,8 @@ int main()
     strcpy(monstr[12], "Dec");
 
     //ENTER TWO-LINE ELEMENT HERE
-    char longstr1[] = "1 25544U 98067A   15239.40934558  .00012538  00000-0  18683-3 0  9996";
-    char longstr2[] = "2 25544  51.6452  88.4122 0001595  95.9665 324.8493 15.55497522959124";
+    longstr1 = "1 25544U 98067A   15239.40934558  .00012538  00000-0  18683-3 0  9996";
+    longstr2 = "2 25544  51.6452  88.4122 0001595  95.9665 324.8493 15.55497522959124";
 
     //ENTER SITE DETAILS HERE
     siteLat = 30.25; //+North (Austin)
@@ -110,8 +146,8 @@ int main()
 
     /*
     //FREEDOM OF MOVEMENT CHECKS STEPPER
-    myMotor->step(500, FORWARD, SINGLE);
-    myMotor->step(500, BACKWARD, SINGLE);
+    azMotor->step(500, FORWARD, SINGLE);
+    azMotor->step(500, BACKWARD, SINGLE);
     */
 
     //INITIALIZE SATELLITE TRACKING
@@ -166,7 +202,7 @@ int main()
             if (stepperRelative == 0){
                 stepsNext = int(cAzimuth * steps_per_degree);
                 dirNext = 2;
-                myMotor->step(stepsNext, dirNext, MICROSTEP); //Turn stepper clockwise to approximate initial azimuth
+                azMotor->step(stepsNext, dirNext, MICROSTEP); //Turn stepper clockwise to approximate initial azimuth
                 stepperRelative = 1;
                 azimuthDatum = stepsNext / steps_per_degree;
                 prevAzimuth = azimuth;
@@ -244,7 +280,7 @@ int main()
 
                 }
 
-                myMotor->step(stepsNext, dirNext, MICROSTEP);
+                azMotor->step(stepsNext, dirNext, MICROSTEP);
             }
 
             EL_SERVO = Convert_El_to_Servo(elevation);

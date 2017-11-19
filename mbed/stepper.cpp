@@ -18,8 +18,17 @@ Stepper::Stepper(PinName pin1, PinName pin2, PinName pin3, PinName pin4, PinName
     mystep3 = new DigitalOut(pin3);
     mystep4 = new DigitalOut(pin4);
     home = new DigitalIn(homepin);
+    stepsPerDegree = 512/360;
     degreesPerStep = 360/512;
     findHome();
+}
+
+double getStepsPerDegree() {
+  return stepsPerDegree;
+}
+
+double getDegreesPerStep() {
+  return degreesPerStep;
 }
 
 void Stepper::stepperOff() {
