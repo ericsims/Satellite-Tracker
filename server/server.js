@@ -9,9 +9,9 @@ var db = require('./db.js');
 
 var spacetrack = require('spacetrack');
 spacetrack.login({
-  username: 'gisellegk@gmail.com',
-  password: 'H.leucocephalus8'
-  // this is so fucking sketch
+  username: '',
+  password: ''
+  // lol no credentials
 });
 
 
